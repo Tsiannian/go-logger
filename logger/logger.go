@@ -65,6 +65,12 @@ func SetLevel(_level LEVEL) {
 	logLevel = _level
 }
 
+func SetFlag(_flag int) {
+	logObj.mu.Lock()
+	defer logObj.mu.Unlock()
+	logObj.lg.SetFlags(_flag)
+}
+
 func SetRollingFile(fileDir, fileName string, maxNumber int32, maxSize int64, _unit UNIT) {
 	maxFileCount = maxNumber
 	maxFileSize = maxSize * int64(_unit)
@@ -218,7 +224,7 @@ func (f *_FILE) rename() {
 			t, _ := time.Parse(DATEFORMAT, time.Now().Format(DATEFORMAT))
 			f._date = &t
 			f.logfile, _ = os.Create(f.dir + "/" + f.filename)
-			f.lg = log.New(logObj.logfile, "\n", log.Ldate|log.Ltime|log.Lshortfile)
+			f.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lshortfile)
 		}
 	} else {
 		f.coverNextOne()
@@ -239,7 +245,7 @@ func (f *_FILE) coverNextOne() {
 	}
 	os.Rename(f.dir+"/"+f.filename, f.dir+"/"+f.filename+"."+strconv.Itoa(int(f._suffix)))
 	f.logfile, _ = os.Create(f.dir + "/" + f.filename)
-	f.lg = log.New(logObj.logfile, "\n", log.Ldate|log.Ltime|log.Lshortfile)
+	f.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 func fileSize(file string) int64 {
