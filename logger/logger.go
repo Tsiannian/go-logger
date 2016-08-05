@@ -88,7 +88,7 @@ func SetRollingFile(fileDir, fileName string, maxNumber int32, maxSize int64, _u
 	}
 	if !logObj.isMustRename() {
 		logObj.logfile, _ = os.OpenFile(fileDir+"/"+fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0)
-		logObj.lg = log.New(logObj.logfile, "\n", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+		logObj.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 	} else {
 		logObj.rename()
 	}
@@ -105,7 +105,7 @@ func SetRollingDaily(fileDir, fileName string) {
 
 	if !logObj.isMustRename() {
 		logObj.logfile, _ = os.OpenFile(fileDir+"/"+fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0)
-		logObj.lg = log.New(logObj.logfile, "\n", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+		logObj.lg = log.New(logObj.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 	} else {
 		logObj.rename()
 	}
@@ -133,6 +133,9 @@ func catchError() {
 }
 
 func Debug(v ...interface{}) {
+	if logLevel > DEBUG {
+		return
+	}
 	if dailyRolling {
 		fileCheck()
 	}
@@ -140,58 +143,70 @@ func Debug(v ...interface{}) {
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
 
-	if logLevel <= DEBUG {
-		logObj.lg.Output(2, fmt.Sprintln("debug", v))
-		console("debug", v)
-	}
+	logObj.lg.Output(2, fmt.Sprintln("debug", v))
+	console("debug", v)
+
 }
 func Info(v ...interface{}) {
+	if logLevel > INFO {
+		return
+	}
 	if dailyRolling {
 		fileCheck()
 	}
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= INFO {
-		logObj.lg.Output(2, fmt.Sprintln("info", v))
-		console("info", v)
-	}
+
+	logObj.lg.Output(2, fmt.Sprintln("info", v))
+	console("info", v)
+
 }
 func Warn(v ...interface{}) {
+	if logLevel > WARN {
+		return
+	}
 	if dailyRolling {
 		fileCheck()
 	}
+
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= WARN {
-		logObj.lg.Output(2, fmt.Sprintln("warn", v))
-		console("warn", v)
-	}
+
+	logObj.lg.Output(2, fmt.Sprintln("warn", v))
+	console("warn", v)
+
 }
 func Error(v ...interface{}) {
+	if logLevel > ERROR {
+		return
+	}
 	if dailyRolling {
 		fileCheck()
 	}
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= ERROR {
-		logObj.lg.Output(2, fmt.Sprintln("error", v))
-		console("error", v)
-	}
+
+	logObj.lg.Output(2, fmt.Sprintln("error", v))
+	console("error", v)
+
 }
 func Fatal(v ...interface{}) {
+	if logLevel > FATAL {
+		return
+	}
 	if dailyRolling {
 		fileCheck()
 	}
 	defer catchError()
 	logObj.mu.RLock()
 	defer logObj.mu.RUnlock()
-	if logLevel <= FATAL {
-		logObj.lg.Output(2, fmt.Sprintln("fatal", v))
-		console("fatal", v)
-	}
+
+	logObj.lg.Output(2, fmt.Sprintln("fatal", v))
+	console("fatal", v)
+
 }
 
 func (f *_FILE) isMustRename() bool {
